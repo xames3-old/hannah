@@ -1,8 +1,8 @@
 name: Hannah GitHub Action Pipeline
 
 on:
-  pull_request:
-  push:
+  pull_request: [main]
+  push: [main]
 
 jobs:
   hannah-pipeline:
