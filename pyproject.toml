@@ -7,7 +7,7 @@ line-length = 79
 include = """
 (
     ^/tests/
-  | ^/src/hannah/
+  | ^/hannah/
   | ^/setup[.]py
 )
 """
