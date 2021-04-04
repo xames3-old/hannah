@@ -76,6 +76,7 @@ class StackFormatter(logging.Formatter):
         "gray": "\x1b[38;5;242m",
         "reset": "\x1b[0m",
     }
+    attrs = ("color", "gray", "reset")
 
     def __init__(
         self, fmt: Optional[str] = None, datefmt: Optional[str] = None
@@ -105,9 +106,8 @@ class StackFormatter(logging.Formatter):
             setattr(record, "gray", self.hues["gray"])
             setattr(record, "reset", self.hues["reset"])
         else:
-            setattr(record, "color", "")
-            setattr(record, "gray", "")
-            setattr(record, "reset", "")
+            for attr in self.attrs:
+                setattr(record, attr, "")
 
     def decolorize(self, record: logging.LogRecord) -> None:
         """Remove ``color`` and ``reset`` attributes from a record.
@@ -116,9 +116,8 @@ class StackFormatter(logging.Formatter):
 
         """
 
-        delattr(record, "color")
-        delattr(record, "gray")
-        delattr(record, "reset")
+        for attr in self.attrs:
+            delattr(record, attr)
 
     def formatException(self, ei: Union[SysExcInfoType, TupleOfNone]) -> str:
         r"""Format exception information as text.
