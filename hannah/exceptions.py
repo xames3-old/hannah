@@ -1,4 +1,7 @@
-"""Exceptions: Collections of all the exceptions raised by Hannah."""
+"""
+Exceptions: Collections of all the exceptions raised by H.A.N.N.A.H.
+
+"""
 
 import os
 import textwrap
@@ -7,7 +10,7 @@ from typing import Optional
 
 
 class HannahError(Exception):
-    """Base exception class for all errors raised by Hannah."""
+    """Base exception class for all errors raised by H.A.N.N.A.H."""
 
     msg: Optional[str] = None
 
@@ -54,6 +57,9 @@ class FileAlreadyClosedError(FileSystemError):
 
 
 class PermissionDeniedError(FileSystemError):
-    """Exception to be raised when permissions aren't provided to file."""
+    """
+    Exception to be raised when permissions aren't provided to file.
+
+    """
 
     msg = "File {filename!r} doesn't have enough permissions"
