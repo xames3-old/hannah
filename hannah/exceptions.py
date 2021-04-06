@@ -10,7 +10,17 @@ from typing import Optional
 
 
 class HannahError(Exception):
-    """Base exception class for all errors raised by H.A.N.N.A.H."""
+    """
+    Base exception class for all errors raised by H.A.N.N.A.H.
+
+    .. code-block:: python
+
+        class FooError(HannahError):
+            msg = "Some error has occured."
+
+        raise FooError(valid=True)
+
+    """
 
     msg: Optional[str] = None
 
