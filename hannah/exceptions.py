@@ -6,42 +6,53 @@ Exceptions: Collections of all the exceptions raised by H.A.N.N.A.H.
 import os
 import textwrap
 from typing import Any
-from typing import Optional
+
+__all__ = [
+    "HannahException",
+    "UnsupportedOperation",
+]
 
 
-class HannahError(Exception):
+class HannahException(Exception):
     """
-    Base exception class for all errors raised by H.A.N.N.A.H.
+    Base class for all the exceptions raised by H.A.N.N.A.H.
+
+    It provides a way to safely raise exceptions when there is some
+    valid reason for it to be raised. In case the exception is raised
+    by the system and there is no reason for it, then it is considered
+    as a probable bug and steps to report this bug are displayed.
 
     .. code-block:: python
 
-        class FooError(HannahError):
-            msg = "Some error has occured."
+        class FooError(HannahException):
+            pass
 
-        raise FooError(valid=True)
+        raise FooError(msg='Something went wrong', valid=True)
 
     """
 
-    msg: Optional[str] = None
-
     def __init__(self, valid: bool = False, **kwargs: Any) -> None:
 
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+        self.msg = self.msg if self.msg else ""  # type: ignore
         if not valid and self.msg:
             self.msg += self.report()
         super().__init__(self.msg)
-        for name, value in kwargs.items():
-            setattr(self, name, value)
 
     def __str__(self) -> str:
         """Return formatted message output."""
 
-        return self.msg.format(**vars(self)) if self.msg else ""
+        return self.msg.format(**vars(self))  # type: ignore
 
     def report(self) -> str:
         """Return bug report warning."""
 
-        width = os.get_terminal_size().columns
-        title = "YIKES! There's a bug!".center(width, "-")
+        try:
+            width = os.get_terminal_size().columns
+        except OSError:
+            width = 80
+        title = " YIKES! There's a bug! ".center(width, "-")
         msg = (
             "If you are seeing this, then there is something wrong with "
             "H.A.N.N.A.H and not your code. Please report this bug here: "
@@ -54,22 +65,8 @@ class HannahError(Exception):
         return f"\n\n{title}\n{wrapper.fill(msg)}\n\n"
 
 
-class FileSystemError(HannahError):
-    """Base class for all FileSystem related exceptions."""
+class UnsupportedOperation(HannahException):
+    """Exception to be raised when operations which are not supported
+    are called."""
 
     pass
-
-
-class FileAlreadyClosedError(FileSystemError):
-    """Exception to be raised when trying to close a closed file."""
-
-    msg = "File {filename!r} is already closed"
-
-
-class PermissionDeniedError(FileSystemError):
-    """
-    Exception to be raised when permissions aren't provided to file.
-
-    """
-
-    msg = "File {filename!r} doesn't have enough permissions"
