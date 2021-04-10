@@ -9,11 +9,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from hannah import SingletonMeta
 from hannah import UnsupportedOperation
 
 
-class FileIOBase(object, metaclass=SingletonMeta):
+class FileIOBase(object):
     """The base class for File I/O classes.
 
     This class provides dummy implementation for many methods that
