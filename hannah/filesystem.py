@@ -162,3 +162,74 @@ class IOBase(object):
         """..."""
 
         self._unsupported("rotate")
+
+
+class IOHelper(object):
+    """A helper class to assist with the underlying metadata of the
+    file.
+
+    IOHelper provides with the metadata like the file name, stem,
+    suffix (extension), parent directory, etc. This can be used in APIs
+    as a Mixin with IOBase's subclasses.
+
+    :param filename: Absolute path of the file whose information needs
+        to be extracted.
+
+    """
+
+    def __init__(self, filename: str) -> None:
+        """Construct file object."""
+
+        self.filename = filename
+
+    @property
+    def parent(self) -> str:
+        """Return parent directory of the file."""
+
+        return os.path.dirname(self.filename)
+
+    @property
+    def basename(self) -> str:
+        """Return only name-part of the file with extension."""
+
+        return os.path.basename(self.filename)
+
+    name = basename
+
+    @property
+    def suffix(self) -> str:
+        """Return extension of the file."""
+
+        return os.path.splitext(self.filename)[-1]
+
+    @property
+    def stem(self) -> str:
+        """Return only name-part of the file without extension."""
+
+        return os.path.splitext(os.path.basename(self.filename))[0]
+
+    @property
+    def size(self) -> int:
+        """Return size of the file in bytes."""
+
+        return os.stat(self.filename).st_size
+
+    @property
+    def siblings(self) -> List[str]:
+        """Return list of matching files in the parent directory."""
+
+        return sorted(
+            fnmatch.filter(os.listdir(self.parent), f"{self.name}*.?")
+        ) + [self.basename]
+
+    @property
+    def index(self) -> int:
+        """Return count of files with same name."""
+
+        return len(self.siblings)
+
+    @property
+    def lines(self) -> int:
+        """Return count of files with same name."""
+
+        return sum(1 for _ in open(self.filename))
