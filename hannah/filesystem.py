@@ -233,3 +233,130 @@ class IOHelper(object):
         """Return count of files with same name."""
 
         return sum(1 for _ in open(self.filename))
+
+
+class IOWriter(IOBase, IOHelper):
+    """..."""
+
+    def __init__(
+        self,
+        filename: str,
+        mode: str = "w",
+        encoding: Optional[str] = None,
+        **kwargs: Dict[str, Any],
+    ) -> None:
+        super().__init__(filename)
+        if not isinstance(mode, str):
+            raise TypeError(f"Invalid mode: {mode}")
+        if not set(mode) <= set("xrwabt+"):
+            raise ValueError(f"Invalid mode: {mode}")
+        if "x" in mode or "w" in mode or "a" in mode:
+            self._writable = True
+            self._readable = False
+        elif "r" in mode:
+            self._check_readable()
+        elif "+" in mode:
+            self._readable = True
+            self._writable = True
+        self.maxbytes = kwargs.get("maxbytes", -1)
+        self.maxlines = kwargs.get("maxlines", -1)
+        self.ignore_linebreak = kwargs.get("ignore_linebreak", True)
+        if self.ignore_linebreak:
+            self.maxlines -= 1  # type: ignore
+        if self.maxbytes > 0 or self.maxlines > 0:  # type: ignore
+            mode = "a"
+        self.mode = mode
+        if encoding is None:
+            encoding = os.device_encoding(0)
+        self.encoding = encoding
+        self._closed = False
+        self.idx = self.index
+        self.open()
+
+    def __repr__(self) -> str:
+        """Return string representation of the class."""
+
+        klass = f"{type(self).__module__}.{type(self).__qualname__}"
+        if self.closed:
+            return f"<{klass}>"
+        return f"<{klass} filename={self.name!r}>"
+
+    def __enter__(self) -> "IOWriter":
+        """Context management protocol. Return self."""
+
+        self._check_closed()
+        return self
+
+    def open(self) -> None:
+        """Open file for the I/O operations."""
+
+        self.fd = open(self.filename, self.mode, encoding=self.encoding)
+        self._closed = False
+
+    def close(self) -> None:
+        """Close the file.
+
+        A closed file cannot be used for further I/O operations. The
+        close() may be called more than once without error.
+
+        """
+
+        if not self._closed:
+            self.fd.close()
+        self._closed = True
+
+    def flush(self) -> None:
+        """Flush write buffers, if applicable.
+
+        This is not implemented for read-only and non-blocking streams.
+        Flushing stream ensures that the data has been cleared from the
+        internal buffer without any guarantee on whether its written to
+        the local disk.
+
+        This means that the data would survive an application crash but
+        not necessarily an OS crash.
+
+        """
+
+        self._check_closed()
+        self._check_writable()
+        self.fd.flush()
+
+    def write(self, *args: Any, **kwargs: Any) -> None:
+        """Write data to the file.
+
+        This is done after clearing the contents of the file on first
+        write and then appending on subsequent calls. This method also
+        rotates the file if provided with correct argument.
+
+        """
+
+        self._check_closed()
+        self._check_writable()
+        sep, end = kwargs.get("sep", " "), kwargs.get("end", "\n")
+        self.fd.write(
+            sep.join(list(map(lambda x: "" if x is None else str(x), args)))
+            + end
+        )
+        self.flush()
+        self.rotate()
+
+    def rotate(self) -> None:
+        """..."""
+
+        rollover = False
+        if self.maxbytes and self.maxbytes > 0:  # type: ignore
+            if self.size > self.maxbytes:  # type: ignore
+                rollover = True
+        if self.maxlines and self.maxlines > 0:  # type: ignore
+            if self.lines > self.maxlines:  # type: ignore
+                rollover = True
+        if rollover:
+            self._check_closed()
+            self.close()
+            if os.path.exists(self.filename):
+                os.rename(self.filename, f"{self.filename}.{self.idx}")
+                self.idx += 1
+            else:
+                raise FileNotFoundError
+            self.open()
