@@ -1,8 +1,8 @@
 from typing import Callable
 
 import pytest
-from hannah import HannahException
-from hannah import UnsupportedOperation
+from hannah.exceptions import HannahException
+from hannah.exceptions import UnsupportedOperation
 
 
 def dummy_func(exc: Callable[..., None], msg: str, valid: bool) -> None:
