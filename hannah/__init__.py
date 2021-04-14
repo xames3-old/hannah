@@ -1,8 +1,8 @@
 """H.A.N.N.A.H: Heuristically Aiding Neural Network based AI for Humans
 """
 
-from ._logging import *
 from ._io import *
+from ._logging import *
 from .exceptions import *
 from .utils import *
 
@@ -11,4 +11,9 @@ try:
 except ImportError:
     __version__ = "Unknown version"
 
-__all__ = _logging.__all__ + _io.__all__ + utils.__all__ + exceptions.__all__  # type: ignore
+__all__ = (
+    _io.__all__  # type: ignore
+    + _logging.__all__  # type: ignore
+    + exceptions.__all__  # type: ignore
+    + utils.__all__  # type: ignore
+)
