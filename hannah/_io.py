@@ -8,7 +8,7 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 
-from hannah import UnsupportedOperation
+from hannah.exceptions import UnsupportedOperation
 
 __all__ = ["IOBase", "IOHelper", "IOWriter"]
 
