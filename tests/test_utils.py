@@ -1,4 +1,4 @@
-from hannah import SingletonMeta
+from hannah.utils import SingletonMeta
 
 
 class Foo(metaclass=SingletonMeta):
