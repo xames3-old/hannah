@@ -1,8 +1,8 @@
 import pytest
 import typing
 
-from hannah import Logger
-from hannah import create_logger
+from hannah._logging import Logger
+from hannah._logging import create_logger
 
 
 def dummy_log_function(
