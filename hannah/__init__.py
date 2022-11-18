@@ -11,4 +11,6 @@ try:
 except ImportError:
     __version__ = "Unknown version"
 
-__all__ = _logging.__all__ + _io.__all__ + utils.__all__ + exceptions.__all__  # type: ignore
+__all__ = _logging.__all__ + _io.__all__ + utils.__all__ + exceptions.__all__ 
+
+print("hello world") # type: ignore
